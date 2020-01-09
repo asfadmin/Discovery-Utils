@@ -1,0 +1,4 @@
+[submodule "submodules/Analytics"]
+	path = submodules/Analytics
+	url = git@github.com:asfadmin/Discovery-Analytics.git
+	branch = prod
