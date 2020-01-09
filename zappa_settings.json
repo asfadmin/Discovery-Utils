@@ -1,0 +1,11 @@
+{
+    "devel": {
+        "app_function": "application.application",
+        "aws_region": "us-east-1",
+        "profile_name": "default",
+        "project_name": "discovery-utils",
+        "runtime": "python3.7",
+        "s3_bucket": "zappa-i6gt1q4v4",
+        "slim_handler": true
+    }
+}
