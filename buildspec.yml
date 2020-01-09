@@ -1,0 +1,32 @@
+version: 0.2
+
+env:
+  parameter-store:
+    build_ssh_key: "build_ssh_key"
+  variables:
+    ENV: "env"
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.7
+    commands:
+      - mkdir -p ~/.ssh
+      - echo "$build_ssh_key" > ~/.ssh/id_rsa
+      - chmod 600 ~/.ssh/id_rsa
+      - ssh-keygen -F github.com || ssh-keyscan github.com >>~/.ssh/known_hosts
+      - git config --global url."git@github.com:".insteadOf "https://github.com/"
+      - git init
+      - git remote add origin ${REPO_URL}
+      - git fetch
+      - git checkout -t origin/${MATURITY}
+      - git submodule init
+      - git submodule update --recursive
+  pre_build:
+    commands:
+      - python -m venv ${ENV}
+      - . ./${ENV}/bin/activate
+      - pip install -r requirements.txt
+  build:
+    commands:
+      - zappa update ${MATURITY}
