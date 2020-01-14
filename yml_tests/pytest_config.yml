@@ -1,0 +1,13 @@
+
+
+add_cli_options:
+- Change API:
+    usage: --api
+    help: "Override which api ALL .yml tests use with this. (LOCAL/DEV/TEST/PROD, or url)."
+    action: store
+    default: Null
+
+test_types:
+- WKTValidatorEndpoint:
+    required_keys: test wkt
+    method: test_WKTValidatorEndpoint
