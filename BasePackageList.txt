@@ -1,0 +1,16 @@
+# Required to run application.py:
+flask
+dateparser
+geomet
+requests
+shapely
+sklearn
+shapefile (package: pyshp)
+kml2geojson
+defusedxml
+lxml
+
+# Not 'required', but still used:
+pytest
+pytest-xdist
+zappa
