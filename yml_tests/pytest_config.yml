@@ -25,3 +25,8 @@ test_types:
 - WKTValidatorEndpoint:
     required_keys: test wkt
     method: test_WKTValidatorEndpoint
+
+- FilesToWktEndpoint:
+    required_keys: file wkt
+    method: test_FilesToWktEndpoint
+
