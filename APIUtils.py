@@ -19,14 +19,17 @@ class simplifyWKT():
         # I use this in a couple areas. It matches things like: .5, 6e-6, -9. etc.
         self.regex_digit = r"(-?(((\d+\.\d+|\d+)(e-?\d+)?)|(\d+\.|\.\d+)))"
 
-        # wkt.loads doesn't like 3D/4D tags, BUT it loads the coords just fine:
-        wkt_str = wkt_str.upper()
-        wkt_str = wkt_str.replace(" Z", " ")
-        wkt_str = wkt_str.replace(" M", " ")
-        wkt_str = wkt_str.replace(" ZM", " ")
-
         try:
+            # wkt.loads doesn't like 3D/4D tags, BUT it loads the coords just fine:
+            wkt_str = wkt_str.upper()
+            wkt_str = wkt_str.replace(" Z", " ")
+            wkt_str = wkt_str.replace(" M", " ")
+            wkt_str = wkt_str.replace(" ZM", " ")
+
             wkt_json = wkt.loads(wkt_str)
+        except AttributeError as e:
+            self.error = { 'error': {'type': 'ATTRIBUTE', 'report': 'Could not parse WKT: {0}.'.format(str(e))} }
+            return           
         except (ValueError, InvalidGeoJSONException) as e:
             self.error = { 'error': {'type': 'VALUE', 'report': 'Could not parse WKT: {0}.'.format(str(e))} }
             return
