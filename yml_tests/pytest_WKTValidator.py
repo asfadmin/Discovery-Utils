@@ -1,8 +1,8 @@
 import os           # Generic imports
 import pytest, warnings  # For testing 
+import shapely.wkt      # For comparing wkt's
 
-
-
+from helpers import make_request, request_to_json
 
 class test_files_to_wkt():
     def __init__(self, test_info):
@@ -51,10 +51,14 @@ class test_repair_wkt():
         if "api" not in cli_args or cli_args["api"] == None:
             assert False, "Endpoint test ran, but '--api' not declared in CLI. (test_repair_wkt)"
         # Join the url 'start' to the endpoint, even if they both/neither have '/' between them:
-        url_parts = [cli_args["api"], "services/utils/wkt"]
-        full_api = '/'.join(s.strip('/') for s in url_parts)
+        url_parts = [ cli_args["api"], "services/utils/wkt" ]
+        full_url = '/'.join(s.strip('/') for s in url_parts)
         test_info = self.applyDefaultValues(test_info)
-
+        # Make a request, and turn it into json. Helpers should handle if something goes wrong:
+        response_server = make_request(full_url, data={"wkt": test_info["test wkt"]} ).content.decode("utf-8")
+        response_json = request_to_json(response_server, full_url, test_info["title"]) # The last two params are just for helpfull error messages
+        # Make sure the response matches what is expected from the test:
+        self.runAssertTests(test_info, response_json)
 
     def applyDefaultValues(self, test_info):
         # Copy 'repaired wkt' to the wrapped/unwrapped versions if used:
@@ -92,4 +96,28 @@ class test_repair_wkt():
             test_info["test wkt"] = "GEOMETRYCOLLECTION({0})".format(",".join(test_info['test wkt']))
         return test_info
 
+    def runAssertTests(self, test_info, response_json):
+        if "repaired wkt wrapped" in test_info:
+            if "wkt" in response_json:
+                assert shapely.wkt.loads(response_json["wkt"]["wrapped"]) == shapely.wkt.loads(test_info["repaired wkt wrapped"]), "WKT wrapped failed to match the result. Test: '{0}'\nExpected: {1}\nActual: {2}\n".format(test_info["title"], test_info["repaired wkt wrapped"], response_json["wkt"]["wrapped"])
+            else:
+                assert False, "WKT not found in response from API. Test: '{0}'. Response: {1}.".format(test_info["title"], response_json)
+        if "repaired wkt unwrapped" in test_info:
+            if "wkt" in response_json:
+                assert shapely.wkt.loads(response_json["wkt"]["unwrapped"]) == shapely.wkt.loads(test_info["repaired wkt unwrapped"]), "WKT unwrapped failed to match the result. Test: '{0}'\nExpected: {1}\nActual: {2}\n".format(test_info["title"], test_info["repaired wkt wrapped"], response_json["wkt"]["wrapped"])
+            else:
+                assert False, "WKT not found in response from API. Test: '{0}'. Response: {1}.".format(test_info["title"], response_json)
+
+        if test_info["check repair"]:
+            if "repairs" in response_json:
+                for repair in test_info["repair"]:
+                    assert repair in str(response_json["repairs"]), "Expected repair was not found in results. Test: '{0}'. Repairs done: {1}".format(test_info["title"], response_json["repairs"])
+                assert len(response_json["repairs"]) == len(test_info["repair"]), "Number of repairs doesn't equal number of repaired repairs. Test: '{0}'. Repairs done: {1}.".format(test_info["title"],response_json["repairs"])
+            else:
+                assert False, "Unexpected WKT returned: {0}. Test: '{1}'".format(response_json, test_info["title"])
+        if "repaired error msg" in test_info:
+            if "error" in response_json:
+                assert test_info["repaired error msg"] in response_json["error"]["report"], "Got different error message than expected. Test: '{0}'.\nError returned: {1}".format(test_info["title"], response_json["error"]["report"])
+            else:
+                assert False, "Unexpected WKT returned: {0}. Test: '{1}'\nResponse: {2}.".format(response_json, test_info["title"], response_json)
 
