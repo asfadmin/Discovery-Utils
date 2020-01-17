@@ -20,6 +20,6 @@ class WKTValidator:
 
     def make_response(self):
         if self.wkt == None:
-            return {'error': {'type': 'POST', 'report': 'Could not data with key "wkt" in post request.'} }
+            return {'error': {'type': 'POST', 'report': "Could not find 'wkt' in post request."} }
         else:
             return repairWKT(self.wkt)
