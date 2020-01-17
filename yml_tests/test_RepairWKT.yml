@@ -2,11 +2,11 @@
 
 
 tests:
-- basic point:
+- BASIC basic point:
     test wkt: POINT (30 10)
     repaired wkt: POINT (30 10)
     
-- basic linestring:
+- BASIC basic linestring:
     test wkt: LINESTRING(13 5, 30 25, 12 42, 22 38, -3 40, 45 -19)
     repaired wkt: LINESTRING(13 5, 30 25, 12 42, 22 38, -3 40, 45 -19)
 
@@ -49,3 +49,4 @@ tests:
     repair:
         - "Unconnected shapes: Convex-halled ALL the shapes together."
         - "Reversed polygon winding order"
+        
