@@ -15,12 +15,11 @@ class WKTValidator:
 
     def get_response(self):
         d = api_headers.base(mimetype='application/json')
-        if self.wkt == None:
-            resp_dict = {'error': {'type': 'POST', 'report': 'Could not data with key "wkt" in post request.'} }
-        else:
-            resp_dict = self.make_response()
-
+        resp_dict = self.make_response()
         return Response(json.dumps(resp_dict, sort_keys=True, indent=4), 200, headers=d)
 
     def make_response(self):
-        return repairWKT(self.wkt)
+        if self.wkt == None:
+            return {'error': {'type': 'POST', 'report': 'Could not data with key "wkt" in post request.'} }
+        else:
+            return repairWKT(self.wkt)
