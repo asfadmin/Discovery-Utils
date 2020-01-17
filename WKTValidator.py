@@ -9,7 +9,7 @@ class WKTValidator:
         self.request = request  # store the incoming request
         
         if 'wkt' in self.request.values:
-            self.wkt = self.request.values["wkt"]
+            self.wkt = self.request.values["wkt"].upper()
         else:
             self.wkt = None
 
