@@ -5,11 +5,11 @@ import shapely.wkt      # For comparing wkt's
 from helpers import make_request, request_to_json
 
 class test_files_to_wkt():
-    def __init__(self, test_info, file_conf, cli_args):
+    def __init__(self, test_info, file_conf, cli_args, test_vars):
         if "api" not in cli_args:
-            assert False, "Endpoint test ran, but '--api' not declared in CLI. (test_files_to_wkt)"
+            assert False, "Endpoint test ran, but '--api' not declared in CLI (test_files_to_wkt).\nCan also add 'default' api to use in yml_tests/pytest_config.yml.\n"
         # Join the url 'start' to the endpoint, even if they both/neither have '/' between them:
-        url_parts = [cli_args["api"], "services/utils/files_to_wkt"]
+        url_parts = [ cli_args["api"], test_vars["endpoint"] ]
         full_url = '/'.join(s.strip('/') for s in url_parts)
         test_info = self.applyDefaultValues(test_info)
         # Make a request, and turn it into json. Helpers should handle if something goes wrong:
@@ -51,11 +51,11 @@ class test_files_to_wkt():
 
 
 class test_repair_wkt():
-    def __init__(self, test_info, file_conf, cli_args):
+    def __init__(self, test_info, file_conf, cli_args, test_vars):
         if "api" not in cli_args or cli_args["api"] == None:
             assert False, "Endpoint test ran, but '--api' not declared in CLI. (test_repair_wkt)"
         # Join the url 'start' to the endpoint, even if they both/neither have '/' between them:
-        url_parts = [ cli_args["api"], "services/utils/wkt" ]
+        url_parts = [ cli_args["api"], test_vars["endpoint"] ]
         full_url = '/'.join(s.strip('/') for s in url_parts)
         test_info = self.applyDefaultValues(test_info)
         # Make a request, and turn it into json. Helpers should handle if something goes wrong:
