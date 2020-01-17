@@ -28,5 +28,5 @@ test_types:
 
 - FilesToWktEndpoint:
     required_keys: file wkt
-    method: test_FilesToWktEndpoint
+    method: test_FilesToWKTEndpoint
 
