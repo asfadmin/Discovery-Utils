@@ -5,14 +5,18 @@ import shapely.wkt      # For comparing wkt's
 from helpers import make_request, request_to_json
 
 class test_files_to_wkt():
-    def __init__(self, test_info):
+    def __init__(self, test_info, file_conf, cli_args):
         if "api" not in cli_args:
             assert False, "Endpoint test ran, but '--api' not declared in CLI. (test_files_to_wkt)"
         # Join the url 'start' to the endpoint, even if they both/neither have '/' between them:
         url_parts = [cli_args["api"], "services/utils/files_to_wkt"]
-        cli_args["api"] = '/'.join(s.strip('/') for s in url_parts)
+        full_url = '/'.join(s.strip('/') for s in url_parts)
         test_info = self.applyDefaultValues(test_info)
-    
+        # Make a request, and turn it into json. Helpers should handle if something goes wrong:
+        response_server = make_request(full_url, files=test_info["file wkt"] ).content.decode("utf-8")
+        response_json = request_to_json(response_server, full_url, test_info["title"]) # The last two params are just for helpfull error messages        
+        print(response_json)
+
     def applyDefaultValues(self, test_info):
         # Figure out what test is 'expected' to do:
         pass_assertions = ["parsed wkt"]
@@ -59,6 +63,9 @@ class test_repair_wkt():
         response_json = request_to_json(response_server, full_url, test_info["title"]) # The last two params are just for helpfull error messages
         # Make sure the response matches what is expected from the test:
         self.runAssertTests(test_info, response_json)
+        if test_info["print"] == True:
+            print(test_info["title"])
+            print("  -- Returned: {0}".format(response_json))
 
     def applyDefaultValues(self, test_info):
         # Copy 'repaired wkt' to the wrapped/unwrapped versions if used:
