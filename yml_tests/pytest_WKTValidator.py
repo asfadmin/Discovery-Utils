@@ -1,6 +1,6 @@
 import os           # Generic imports
 import pytest, warnings  # For testing 
-import shapely.wkt      # For comparing wkt's
+import shapely.wkt, geomet.wkt      # For comparing wkt's
 
 from helpers import make_request, request_to_json
 
@@ -15,15 +15,19 @@ class test_files_to_wkt():
         # Make a request, and turn it into json. Helpers should handle if something goes wrong:
         response_server = make_request(full_url, files=test_info["file wkt"] ).content.decode("utf-8")
         response_json = request_to_json(response_server, full_url, test_info["title"]) # The last two params are just for helpfull error messages        
-        print(response_json)
+        # Make sure the response matches what is expected from the test:
+        self.runAssertTests(test_info, response_json)
+        if test_info["print"] == True:
+            print(test_info["title"])
+            print("  -- Returned: {0}".format(response_json))
 
     def applyDefaultValues(self, test_info):
         # Figure out what test is 'expected' to do:
         pass_assertions = ["parsed wkt"]
-        fail_assertions = ["parsed error msg"]
+        fail_assertions = ["parsed error msg", "warnings"]
         # True if at least one of the above is used, False otherwise:
-        test_info["asserts pass"] = 0 != len([k for k,_ in test_info.items() if k in pass_assertions])
-        test_info["asserts fail"] = 0 != len([k for k,_ in test_info.items() if k in fail_assertions])
+        pass_assertions_used = 0 != len([k for k,_ in test_info.items() if k in pass_assertions])
+        fail_assertions_used = 0 != len([k for k,_ in test_info.items() if k in fail_assertions])
 
         # Default Print the result to screen if tester isn't asserting anything. Else just run the test:
         if "print" not in test_info:
@@ -32,6 +36,16 @@ class test_files_to_wkt():
         if not isinstance(test_info["file wkt"], type([])):
             test_info["file wkt"] = [ test_info["file wkt"] ]
 
+        # If you should check warnings. (Will check if you assert something will happen. Checks empty case by default then.)
+        if "check warnings" not in test_info:
+            test_info["check warnings"] = True if pass_assertions_used or fail_assertions_used else False
+        # Setup warnings:
+        if "warnings" not in test_info:
+            test_info["warnings"] = []
+        if not isinstance(test_info["warnings"], type([])):
+            test_info["warnings"] = [ test_info["warnings"] ]
+
+        # Load the files:
         resources_dir = os.path.join(os.path.realpath(os.path.dirname(__file__)), "Resources")
         files_that_exist = []
         for file in test_info["file wkt"]:
@@ -40,13 +54,28 @@ class test_files_to_wkt():
                 # Save it in the format the api is expecting:
                 files_that_exist.append(('files', open(file_path, 'rb')))
             else:
-                assert False, "File not found: {0}. File paths start after: '{1}'. (Test: '{2}')".format(file_path, resources_dir, test_info["title"])
+                assert False, "File not found: {0}. (Test: '{1}') \nFile paths should start after: '{2}'.".format(file_path, test_info["title"], resources_dir)
         # Override with the new files:
         test_info["file wkt"] = files_that_exist
         return test_info
 
-
-
+    def runAssertTests(self, test_info, response_json):
+        if "parsed error msg" in test_info:
+            if "error" in response_json:
+                assert test_info["parsed error msg"] in str(response_json)
+            else:
+                assert False, "API did not return the expected message. Test: '{0}'.\nContent: '{1}'.\n".format(test_info["title"], str(response_json))
+        if "parsed wkt" in test_info:
+            if "parsed wkt" in response_json:
+                lhs = geomet.wkt.loads(response_json["parsed wkt"])
+                rhs = geomet.wkt.loads(test_info["parsed wkt"])
+                assert lhs == rhs, "Parsed wkt returned from API did not match 'parsed wkt'. Title: '{0}'.".format(test_info["title"])
+            else:
+                assert False, "API did not return a WKT. Test: '{0}'.\nContent: '{1}'.\n".format(test_info["title"], str(response_json))
+        if test_info["check warnings"] == True:
+            for warning in test_info["warnings"]:
+                assert str(warning) in str(response_json["errors"]), "Response did not contain expected warning. Test: '{0}'.\nExpected: '{1}'\nNot found in:\n{2}\n".format(test_info["title"], warning, response_json["errors"])
+            assert len(test_info["warnings"]) == len(response_json["errors"]), "Number of warnings declared did not line up with number of expected warnings. Test: '{0}'.\nWarnings in response:\n{1}\n".format(test_info["title"], response_json["errors"])
 
 
 
@@ -85,12 +114,9 @@ class test_repair_wkt():
         # Default Print the result to screen if tester isn't asserting anything:
         if "print" not in test_info:
             test_info["print"] = False if (pass_assertions_used or fail_assertions_used) else True
+        # If they expect something to pass, check if it needed repairing too:
         if "check repair" not in test_info:
-            repair_if_used = ["repaired wkt wrapped", "repaired wkt unwrapped", "repair"]
-            if len([k for k,_ in test_info.items() if k in repair_if_used]) > 0:
-                test_info["check repair"] = True
-            else:
-                test_info["check repair"] = False
+            test_info["check repair"] = pass_assertions_used
 
         # Add the repair if needed. Make sure it's a list:
         if "repair" not in test_info:
