@@ -20,7 +20,7 @@ class FilesToWKT:
         self.errors = []
         # Find out if the user passed us files:
         if 'files' in self.request.files and len(list(self.request.files.getlist('files'))) > 0:
-            self.files = self.request.files.to_dict().values()
+            self.files = self.request.files.getlist("files")
         else:
             self.files = None
 
@@ -37,8 +37,10 @@ class FilesToWKT:
 
     def make_response(self):
         if self.files == None:
-            return {'error': {'type': 'POST', 'report': 'No files provided in files= parameter'}, "errors": self.errors }
+            self.errors.append({'type': 'POST', 'report': 'No files provided in files= parameter'})
+            return {'errors': self.errors }
 
+        # Helper for organizing files into a dict, combining shps/shx, etc.
         def add_file_to_dict(file_dict, full_name, file_stream):
             ext = full_name.split(".")[-1:][0].lower()              # Everything after the last dot.
             file_name = ".".join(full_name.split(".")[:-1])         # Everything before the last dot.
@@ -96,16 +98,17 @@ class FilesToWKT:
                 # This *should* never get hit, but someone might add a new file-type in 'add_file_to_dict' w/out declaring it here.
                 self.errors.append({"type": "STREAM_UNKNOWN", "report": "Ignoring file with unknown tag. File: '{0}'".format(key)})
                 continue
-            # If the parse returned a json error:
+            # If the parse function returned a json error:
             if isinstance(wkt, type({})) and "error" in wkt:
-                wkt["error"]["report"] += " (Problem parsing file: '{0}')".format(key)
+                # Give the error a better error discription:
+                wkt["error"]["report"] += " (Cannot load file: '{0}')".format(key)
                 self.errors.append(wkt["error"])
                 continue
             else:
                 wkt_list.append(wkt)
 
         if len(wkt_list) == 0:
-            return { 'error': {'type': 'PARSE', 'report': 'No valid files found.'}, 'errors': self.errors }
+            return { 'errors': self.errors }
         elif len(wkt_list) == 1:
             full_wkt = wkt_list[0]
         else:
