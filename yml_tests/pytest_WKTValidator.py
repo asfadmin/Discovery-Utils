@@ -15,35 +15,40 @@ class test_files_to_wkt():
         # Make a request, and turn it into json. Helpers should handle if something goes wrong:
         response_server = make_request(full_url, files=test_info["file wkt"] ).content.decode("utf-8")
         response_json = request_to_json(response_server, full_url, test_info["title"]) # The last two params are just for helpfull error messages        
+
+        if test_info["print"] == True:
+            print()
+            print("Title: " + str(test_info["title"]))
+            print("  -- API returned:\n{0}".format(response_json))
+            print()
+            
         # Make sure the response matches what is expected from the test:
         self.runAssertTests(test_info, response_json)
-        if test_info["print"] == True:
-            print(test_info["title"])
-            print("  -- Returned: {0}".format(response_json))
 
     def applyDefaultValues(self, test_info):
         # Figure out what test is 'expected' to do:
         pass_assertions = ["parsed wkt"]
-        fail_assertions = ["parsed error msg", "warnings"]
-        # True if at least one of the above is used, False otherwise:
+        fail_assertions = ["errors"]
+        # True if at least one of the above is in the test, False otherwise:
         pass_assertions_used = 0 != len([k for k,_ in test_info.items() if k in pass_assertions])
         fail_assertions_used = 0 != len([k for k,_ in test_info.items() if k in fail_assertions])
+        assertions_used = (pass_assertions_used or fail_assertions_used)
 
         # Default Print the result to screen if tester isn't asserting anything. Else just run the test:
         if "print" not in test_info:
-            test_info["print"] = False if "parsed wkt" in test_info or "parsed error msg" in test_info else True
+            test_info["print"] = not assertions_used
 
         if not isinstance(test_info["file wkt"], type([])):
             test_info["file wkt"] = [ test_info["file wkt"] ]
 
-        # If you should check warnings. (Will check if you assert something will happen. Checks empty case by default then.)
-        if "check warnings" not in test_info:
-            test_info["check warnings"] = True if pass_assertions_used or fail_assertions_used else False
-        # Setup warnings:
-        if "warnings" not in test_info:
-            test_info["warnings"] = []
-        if not isinstance(test_info["warnings"], type([])):
-            test_info["warnings"] = [ test_info["warnings"] ]
+        # If you should check errors. (Will check if you assert something will happen. Checks empty case by default then.)
+        if "check errors" not in test_info:
+            test_info["check errors"] = assertions_used
+        # Setup errors:
+        if "errors" not in test_info:
+            test_info["errors"] = []
+        if not isinstance(test_info["errors"], type([])):
+            test_info["errors"] = [ test_info["errors"] ]
 
         # Load the files:
         resources_dir = os.path.join(os.path.realpath(os.path.dirname(__file__)), "Resources")
@@ -60,11 +65,6 @@ class test_files_to_wkt():
         return test_info
 
     def runAssertTests(self, test_info, response_json):
-        if "parsed error msg" in test_info:
-            if "error" in response_json:
-                assert test_info["parsed error msg"] in str(response_json)
-            else:
-                assert False, "API did not return the expected message. Test: '{0}'.\nContent: '{1}'.\n".format(test_info["title"], str(response_json))
         if "parsed wkt" in test_info:
             if "parsed wkt" in response_json:
                 lhs = geomet.wkt.loads(response_json["parsed wkt"])
@@ -72,10 +72,10 @@ class test_files_to_wkt():
                 assert lhs == rhs, "Parsed wkt returned from API did not match 'parsed wkt'. Title: '{0}'.".format(test_info["title"])
             else:
                 assert False, "API did not return a WKT. Test: '{0}'.\nContent: '{1}'.\n".format(test_info["title"], str(response_json))
-        if test_info["check warnings"] == True:
-            for warning in test_info["warnings"]:
-                assert str(warning) in str(response_json["errors"]), "Response did not contain expected warning. Test: '{0}'.\nExpected: '{1}'\nNot found in:\n{2}\n".format(test_info["title"], warning, response_json["errors"])
-            assert len(test_info["warnings"]) == len(response_json["errors"]), "Number of warnings declared did not line up with number of expected warnings. Test: '{0}'.\nWarnings in response:\n{1}\n".format(test_info["title"], response_json["errors"])
+        if test_info["check errors"] == True:
+            for error in test_info["errors"]:
+                assert str(error) in str(response_json["errors"]), "Response did not contain expected error. Test: '{0}'.\nExpected: '{1}'\nNot found in:\n{2}\n".format(test_info["title"], error, response_json["errors"])
+            assert len(test_info["errors"]) == len(response_json["errors"]), "Number of errors declared did not line up with number of expected errors. Test: '{0}'.\nWarnings in response:\n{1}\n".format(test_info["title"], response_json["errors"])
 
 
 
