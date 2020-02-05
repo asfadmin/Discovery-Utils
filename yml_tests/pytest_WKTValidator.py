@@ -73,6 +73,9 @@ class test_files_to_wkt():
             else:
                 assert False, "API did not return a WKT. Test: '{0}'.\nContent: '{1}'.\n".format(test_info["title"], str(response_json))
         if test_info["check errors"] == True:
+            # Give errors a value to stop key-errors, and force the len() test to always happen:
+            if "errors" not in response_json:
+                response_json["errors"] = []
             for error in test_info["errors"]:
                 assert str(error) in str(response_json["errors"]), "Response did not contain expected error. Test: '{0}'.\nExpected: '{1}'\nNot found in:\n{2}\n".format(test_info["title"], error, response_json["errors"])
             assert len(test_info["errors"]) == len(response_json["errors"]), "Number of errors declared did not line up with number of expected errors. Test: '{0}'.\nWarnings in response:\n{1}\n".format(test_info["title"], response_json["errors"])
