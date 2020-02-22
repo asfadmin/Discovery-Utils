@@ -1,11 +1,9 @@
-from flask import Response
 import logging
 import json
 from geomet import wkt, InvalidGeoJSONException
 from io import BytesIO
 import shapefile
 import zipfile
-import api_headers
 import os
 from APIUtils import repairWKT
 from kml2geojson import build_feature_collection as kml2json
@@ -15,50 +13,9 @@ import defusedxml.minidom as md
 
 class FilesToWKT:
 
-    def __init__(self, request):
-        self.request = request  # store the incoming request
+    def __init__(self, files):
+        self.files = files
         self.errors = []
-        # Find out if the user passed us files:
-        if 'files' in self.request.files and len(list(self.request.files.getlist('files'))) > 0:
-            self.files = self.request.files.getlist("files")
-        else:
-            self.files = None
-
-    def get_response(self):
-        d = api_headers.base(mimetype='application/json')
-        resp_dict = self.make_response()
-        ###### For backwards compatibility ######################
-        if "parsed wkt" in resp_dict:                           #
-            repaired_json = repairWKT(resp_dict["parsed wkt"])  #
-            for key, val in repaired_json.items():              #
-                resp_dict[key] = val                            #
-        #########################################################
-        return Response(json.dumps(resp_dict, sort_keys=True, indent=4), 200, headers=d)
-
-    def make_response(self):
-        if self.files == None:
-            self.errors.append({'type': 'POST', 'report': 'No files provided in files= parameter'})
-            return {'errors': self.errors }
-
-        # Helper for organizing files into a dict, combining shps/shx, etc.
-        def add_file_to_dict(file_dict, full_name, file_stream):
-            ext = full_name.split(".")[-1:][0].lower()              # Everything after the last dot.
-            file_name = ".".join(full_name.split(".")[:-1])         # Everything before the last dot.
-
-            # SHP'S:
-            if ext in ["shp", "shx", "dbf"]:
-                # Save shps as {"filename": {"shp": data, "shx": data, "dbf": data}, "file_2.kml": kml_data}
-                if file_name not in file_dict:
-                    file_dict[file_name] = {}
-                file_dict[file_name][ext] = BytesIO(file_stream)
-            # BASIC FILES:
-            elif ext in ["kml", "geojson"]:
-                file_dict[full_name] = BytesIO(file_stream)
-            # Else they pass a zip again:
-            elif ext in ["zip"]:
-                self.errors.append({"type": "FILE_UNZIP", "report": "Cannot unzip double-compressed files. File: '{0}'.".format(full_name)})
-            else:
-                self.errors.append({"type": "FILE_UNKNOWN", "report": "Ignoring file with unknown extension. File: '{0}'.".format(full_name)})
 
         # Have to group all shp types together:
         file_dict = {}
@@ -75,11 +32,10 @@ class FilesToWKT:
                         # If it's a dir, skip it. ('parts' still contains the files in that dir)
                         if part_path.endswith("/"):
                             continue
-                        part_name = os.path.basename(part_path)
-                        add_file_to_dict(file_dict, part_name, zip_obj.read(part_path))
+                        self.add_file_to_dict(file_dict, part_path, zip_obj.read(part_path))
             else:
                 # Try to add whatever it is:
-                add_file_to_dict(file_dict, full_name, file.read())
+                self.add_file_to_dict(file_dict, full_name, file.read())
 
         # With everything organized in dict, start parsing them:
         wkt_list = []
@@ -120,6 +76,28 @@ class FilesToWKT:
             returned_dict['errors'] = self.errors
         return returned_dict
     
+
+    # Helper for organizing files into a dict, combining shps/shx, etc.
+    def add_file_to_dict(file_dict, full_name, file_stream):
+        ext = full_name.split(".")[-1:][0].lower()              # Everything after the last dot.
+        file_name = ".".join(full_name.split(".")[:-1])         # Everything before the last dot.
+
+        # SHP'S:
+        if ext in ["shp", "shx", "dbf"]:
+            # Save shps as {"filename": {"shp": data, "shx": data, "dbf": data}, "file_2.kml": kml_data}
+            if file_name not in file_dict:
+                file_dict[file_name] = {}
+            file_dict[file_name][ext] = BytesIO(file_stream)
+        # BASIC FILES:
+        elif ext in ["kml", "geojson"]:
+            file_dict[full_name] = BytesIO(file_stream)
+        # Else they pass a zip again:
+        elif ext in ["zip"]:
+            self.errors.append({"type": "FILE_UNZIP", "report": "Cannot unzip double-compressed files. File: '{0}'.".format(full_name)})
+        else:
+            self.errors.append({"type": "FILE_UNKNOWN", "report": "Ignoring file with unknown extension. File: '{0}'.".format(full_name)})
+
+
 
 # Takes any json, and returns a list of all {"type": x, "coordinates": y} objects 
 # found, ignoring anything else in the block
