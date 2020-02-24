@@ -1,5 +1,5 @@
 import logging
-from CMR.Input import parse_wkt
+from Input import parse_wkt
 from geomet import wkt, InvalidGeoJSONException
 from asf_env import get_config
 import requests
