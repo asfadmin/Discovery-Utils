@@ -1,15 +1,16 @@
+from .asf_env import get_config
+from .Input import parse_wkt
+
 import logging
-from Input import parse_wkt
-from geomet import wkt, InvalidGeoJSONException
-from asf_env import get_config
 import requests
 import shapely.wkt
 import shapely.ops
-from shapely.geometry import Polygon, LineString, Point
 import re
 import json
-from sklearn.neighbors import NearestNeighbors
 import numpy as np
+from geomet import wkt, InvalidGeoJSONException
+from sklearn.neighbors import NearestNeighbors
+from shapely.geometry import Polygon, LineString, Point
 
 class simplifyWKT():
     def __init__(self, wkt_str):
