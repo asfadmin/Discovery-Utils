@@ -5,7 +5,7 @@ from io import BytesIO
 import shapefile
 import zipfile
 import os
-from APIUtils import repairWKT
+from RepairWKT import repairWKT
 from kml2geojson import build_feature_collection as kml2json
 import defusedxml.minidom as md
 # from defusedxml import DefusedXmlException, DTDForbidden, EntitiesForbidden, ExternalReferenceForbidden, NotSupportedError
