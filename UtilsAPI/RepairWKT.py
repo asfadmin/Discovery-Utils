@@ -1,5 +1,5 @@
 from .asf_env import get_config
-from .Input import parse_wkt
+from .Input import parse_wkt_to_cmr
 
 import logging
 import requests
