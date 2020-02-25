@@ -15,6 +15,7 @@ class FilesToWKT:
     def __init__(self, files):
         self.files = files
         self.errors = []
+        self.returned_dict = {}
 
         # Have to group all shp types together:
         file_dict = {}
@@ -63,21 +64,20 @@ class FilesToWKT:
                 wkt_list.append(wkt)
 
         if len(wkt_list) == 0:
-            return { 'errors': self.errors }
+            return
         elif len(wkt_list) == 1:
             full_wkt = wkt_list[0]
         else:
             full_wkt = "GEOMETRYCOLLECTION({0})".format(",".join(wkt_list))
+        self.returned_dict = {"parsed wkt": full_wkt}
 
-        returned_dict = {"parsed wkt": full_wkt}
-        # Only return the 'errors' key IF there are errors...
-        if self.errors != []:
-            returned_dict['errors'] = self.errors
-        self.returned_dict = returned_dict
     
     def getWKT():
+        # Only return the 'errors' key IF there are errors...
+        if self.errors != []:
+            self.returned_dict['errors'] = self.errors
         return self.returned_dict
-        
+
     # Helper for organizing files into a dict, combining shps/shx, etc.
     def add_file_to_dict(self, file_dict, full_name, file_stream):
         ext = full_name.split(".")[-1:][0].lower()              # Everything after the last dot.
