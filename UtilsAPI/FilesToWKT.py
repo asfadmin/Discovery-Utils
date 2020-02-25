@@ -73,9 +73,11 @@ class FilesToWKT:
         # Only return the 'errors' key IF there are errors...
         if self.errors != []:
             returned_dict['errors'] = self.errors
-        return returned_dict
+        self.returned_dict = returned_dict
     
-
+    def getWKT():
+        return self.returned_dict
+        
     # Helper for organizing files into a dict, combining shps/shx, etc.
     def add_file_to_dict(self, file_dict, full_name, file_stream):
         ext = full_name.split(".")[-1:][0].lower()              # Everything after the last dot.
