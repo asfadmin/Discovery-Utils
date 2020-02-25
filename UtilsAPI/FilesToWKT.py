@@ -72,7 +72,7 @@ class FilesToWKT:
         self.returned_dict = {"parsed wkt": full_wkt}
 
     
-    def getWKT():
+    def getWKT(self):
         # Only return the 'errors' key IF there are errors...
         if self.errors != []:
             self.returned_dict['errors'] = self.errors
