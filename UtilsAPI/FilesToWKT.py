@@ -1,13 +1,15 @@
+from .RepairWKT import repairWKT
+
 import logging
 import json
-from geomet import wkt, InvalidGeoJSONException
-from io import BytesIO
 import shapefile
 import zipfile
 import os
-from RepairWKT import repairWKT
-from kml2geojson import build_feature_collection as kml2json
 import defusedxml.minidom as md
+from io import BytesIO
+from kml2geojson import build_feature_collection as kml2json
+from geomet import wkt, InvalidGeoJSONException
+
 # from defusedxml import DefusedXmlException, DTDForbidden, EntitiesForbidden, ExternalReferenceForbidden, NotSupportedError
 
 
