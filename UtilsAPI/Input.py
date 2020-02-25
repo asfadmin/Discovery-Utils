@@ -4,7 +4,7 @@ from geomet import wkt, InvalidGeoJSONException
 
 
 # Parse and validate a date: "1991-10-01T00:00:00Z"
-def parse_date(v):
+def parse_date_util(v):
     d = dateparser.parse(v)
     if d is None:
         raise ValueError('Invalid date: {0}'.format(v))
@@ -12,7 +12,7 @@ def parse_date(v):
 
 # Parse a WKT and convert it to a coordinate string
 # NOTE: If given an empty ("POINT EMPTY") shape, will return "point:". Should it throw instead?
-def parse_wkt_to_cmr(v):
+def parse_wkt_util(v):
     try:
         wkt_json = wkt.loads(str(v).upper())
     except (ValueError, AttributeError, InvalidGeoJSONException) as e:
