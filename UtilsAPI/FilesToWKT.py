@@ -77,7 +77,7 @@ class FilesToWKT:
     
 
     # Helper for organizing files into a dict, combining shps/shx, etc.
-    def add_file_to_dict(file_dict, full_name, file_stream):
+    def add_file_to_dict(self, file_dict, full_name, file_stream):
         ext = full_name.split(".")[-1:][0].lower()              # Everything after the last dot.
         file_name = ".".join(full_name.split(".")[:-1])         # Everything before the last dot.
 
