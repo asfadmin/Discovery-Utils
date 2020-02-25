@@ -6,7 +6,7 @@ import os
 import defusedxml.minidom as md
 from kml2geojson import build_feature_collection as kml2json
 from geomet import wkt, InvalidGeoJSONException
-
+from io import BytesIO
 # from defusedxml import DefusedXmlException, DTDForbidden, EntitiesForbidden, ExternalReferenceForbidden, NotSupportedError
 
 
