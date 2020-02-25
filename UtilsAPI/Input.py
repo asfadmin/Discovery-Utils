@@ -12,7 +12,7 @@ def parse_date(v):
 
 # Parse a WKT and convert it to a coordinate string
 # NOTE: If given an empty ("POINT EMPTY") shape, will return "point:". Should it throw instead?
-def parse_wkt(v):
+def parse_wkt_to_cmr(v):
     try:
         wkt_json = wkt.loads(str(v).upper())
     except (ValueError, AttributeError, InvalidGeoJSONException) as e:
