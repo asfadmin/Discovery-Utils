@@ -495,7 +495,7 @@ class simplifyWKT():
         wkt_obj_wrapped = wkt.loads(self.wkt_wrapped)
         wkt_obj_unwrapped = wkt.loads(self.wkt_unwrapped)
 
-        cmr_coords = parse_wkt(wkt.dumps(wkt_obj_wrapped)).split(':')[1].split(',')
+        cmr_coords = parse_wkt_util(wkt.dumps(wkt_obj_wrapped)).split(':')[1].split(',')
         status_code, text = CMRSendRequest(cmr_coords)
         if status_code != 200:
             if 'Please check the order of your points.' in text:
