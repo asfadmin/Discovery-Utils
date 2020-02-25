@@ -1,12 +1,9 @@
-from .RepairWKT import repairWKT
-
 import logging
 import json
 import shapefile
 import zipfile
 import os
 import defusedxml.minidom as md
-from io import BytesIO
 from kml2geojson import build_feature_collection as kml2json
 from geomet import wkt, InvalidGeoJSONException
 
