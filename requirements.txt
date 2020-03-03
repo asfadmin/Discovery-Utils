@@ -1,0 +1,18 @@
+## Fixing requirement conflicts:
+docutils==0.15.2
+python-dateutil==2.6.1
+
+## Required packages:
+dateparser==0.7.2 
+defusedxml==0.6.0 
+Flask==1.1.1 
+geomet==0.2.1.post1 
+kml2geojson==4.0.2 
+lxml==4.4.2 
+pyshp==2.1.0 
+pytest==5.3.2 
+pytest-xdist==1.31.0 
+requests==2.22.0 
+Shapely==1.6.4.post2 
+sklearn==0.0 
+zappa==0.48.2 

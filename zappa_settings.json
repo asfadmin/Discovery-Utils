@@ -1,0 +1,26 @@
+{
+    "devel": {
+        "app_function": "application.application",
+        "aws_region": "us-east-1",
+        "project_name": "discovery-utils",
+        "runtime": "python3.7",
+        "s3_bucket": "zappa-i6gt1q4v4",
+        "slim_handler": true
+    },
+    "test": {
+        "app_function": "application.application",
+        "aws_region": "us-east-1",
+        "project_name": "discovery-utils",
+        "runtime": "python3.7",
+        "s3_bucket": "zappa-i6gt1q4v3",
+        "slim_handler": true
+    },
+    "testing": {
+        "app_function": "application.application",
+        "aws_region": "us-east-1",
+        "project_name": "discovery-utils",
+        "runtime": "python3.7",
+        "s3_bucket": "zappa-i6gt1q4v5",
+        "slim_handler": true
+    }
+}
