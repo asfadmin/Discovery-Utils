@@ -2,7 +2,3 @@
 	path = submodules/Analytics
 	url = git@github.com:asfadmin/Discovery-Analytics.git
 	branch = prod
-[submodule "Discovery-PytestAutomation"]
-	path = Discovery-PytestAutomation
-	url = git@github.com:asfadmin/Discovery-PytestAutomation.git
-	branch = prod
