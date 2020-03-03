@@ -15,7 +15,8 @@ class DateValidator:
 
     def get_response(self):
         d = api_headers.base(mimetype='application/json')
-
+        if self.date == None:
+            return {'errors': [{'type': 'POST', 'report': "Could not find 'date' in post request."}]}
         try:
             date = parse_date(self.date)
             resp_dict = {'date': {'original': self.date, 'parsed': date}}
