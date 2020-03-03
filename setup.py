@@ -6,12 +6,12 @@ with open("README.md", "r") as fh:
 setuptools.setup(
     name="UtilsAPI",
     version="0.0.1",
-    author="Example Author",
-    author_email="author@example.com",
-    description="A small example package",
+    author="ASF Discovery Team",
+    author_email="uaf-asf-discovery@alaska.edu",
+    description="A few utilities for use elsewhere",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="git@github.com/asfadmin/Discovery-UtilsAPI.git",
+    url="git@github.com/asfadmin/Discovery-Utils.git",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
