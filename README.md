@@ -1,4 +1,4 @@
-# Discovery-UtilsAPI
+# Discovery-Utils
 
 ### Deployments
 
@@ -7,5 +7,5 @@
 
 ### To Install as Package:
 ```bash
-pip install git+ssh://git@github.com/asfadmin/Discovery-UtilsAPI.git@<BRANCH_NAME> --upgrade
+pip install git+ssh://git@github.com/asfadmin/Discovery-Utils.git@<BRANCH_NAME> --upgrade
 ```
